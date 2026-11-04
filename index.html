@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multimodal AI Studio with Safety & Governance</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f6ff',
+                            100: '#e0edff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        },
+                        guard: {
+                            pass: '#10b981',
+                            warn: '#f59e0b',
+                            fail: '#ef4444'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="h-full font-sans antialiased bg-slate-950 text-slate-100 selection:bg-brand-500 selection:text-white flex flex-col overflow-hidden">
+
+    <!-- Top Navigation Header -->
+    <header class="h-16 border-b border-slate-800 bg-slate-900/80 backdrop-blur flex items-center justify-between px-6 shrink-0 z-20">
+        <!-- Brand / Title -->
+        <div class="flex items-center space-x-3">
+            <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-brand-500/20">
+                <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-base tracking-tight text-white flex items-center gap-2">
+                    OmniStudio AI
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 font-mono">v2.4-Governance</span>
+                </h1>
+                <p class="text-xs text-slate-400">Enterprise Multimodal Safety & LiteLLM Gateway</p>
+            </div>
+        </div>
+
+        <!-- Right Header Stats & Auth User -->
+        <div class="flex items-center space-x-4">
+            <!-- LiteLLM Gateway Health -->
+            <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/50 text-xs">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span class="text-slate-300 font-mono">LiteLLM Gateway Active</span>
+                <span class="text-slate-500">|</span>
+                <span class="text-emerald-400 font-medium">99.98% Uptime</span>
+            </div>
+
+            <!-- Token Budget Indicator -->
+            <div class="hidden lg:flex flex-col text-right">
+                <div class="text-xs text-slate-400 flex items-center justify-end gap-1">
+                    <span>Monthly Budget Usage</span>
+                    <span class="font-mono text-slate-200">$42.80 / $100.00</span>
+                </div>
+                <div class="w-44 h-1.5 bg-slate-800 rounded-full mt-1 overflow-hidden border border-slate-700">
+                    <div class="bg-gradient-to-r from-emerald-500 via-brand-500 to-amber-500 h-full w-[42%]"></div>
+                </div>
+            </div>
+
+            <div class="h-6 w-px bg-slate-800 hidden sm:block"></div>
+
+            <!-- Profile & Auth Menu -->
+            <div class="flex items-center gap-3">
+                <button onclick="openAUPModal()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition">
+                    <i data-lucide="file-text" class="w-3.5 h-3.5 text-brand-400"></i> AUP Policy
+                </button>
+                <div class="text-right hidden sm:block">
+                    <p class="text-xs font-semibold text-slate-200">Alex Rivera</p>
+                    <p class="text-[10px] text-brand-400 font-mono uppercase tracking-wider">Enterprise Admin</p>
+                </div>
+                <div class="relative group cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" 
+                         alt="User Avatar" 
+                         class="w-9 h-9 rounded-full ring-2 ring-brand-500/50 object-cover"
+                         onerror="this.src='https://placehold.co/100x100/1e293b/ffffff?text=AR'">
+                    <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 border-r border-slate-800 bg-slate-900/50 flex flex-col justify-between shrink-0">
+            <div class="p-4 space-y-6 overflow-y-auto">
+                <!-- Navigation Group -->
+                <div>
+                    <p class="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Studios & Generators</p>
+                    <nav class="space-y-1" id="sidebar-nav">
+                        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-medium transition text-white bg-brand-600/20 border border-brand-500/30">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4 text-brand-400"></i>
+                            <span>Overview Dashboard</span>
+                        </button>
+                        <button onclick="switchTab('text')" id="nav-text" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition">
+                            <i data-lucide="message-square" class="w-4 h-4 text-emerald-400"></i>
+                            <div class="flex-1 text-left flex items-center justify-between">
+                                <span>Text Studio</span>
+                                <span class="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">LiteLLM</span>
+                            </div>
+                        </button>
+                        <button onclick="switchTab('image')" id="nav-image" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition">
+                            <i data-lucide="image" class="w-4 h-4 text-purple-400"></i>
+                            <div class="flex-1 text-left flex items-center justify-between">
+                                <span>Image Studio</span>
+                                <span class="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">Diffusers</span>
+                            </div>
+                        </button>
+                        <button onclick="switchTab('audio')" id="nav-audio" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition">
+                            <i data-lucide="mic" class="w-4 h-4 text-amber-400"></i>
+                            <div class="flex-1 text-left flex items-center justify-between">
+                                <span>Audio Studio</span>
+                                <span class="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">XTTS/Whisper</span>
+                            </div>
+                        </button>
+                        <button onclick="switchTab('video')" id="nav-video" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition">
+                            <i data-lucide="video" class="w-4 h-4 text-rose-400"></i>
+                            <span>Video Studio</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Governance & Assets Group -->
+                <div>
+                    <p class="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Governance & Tools</p>
+                    <nav class="space-y-1">
+                        <button onclick="switchTab('prompts')" id="nav-prompts" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition">
+                            <i data-lucide="book-open" class="w-4 h-4 text-cyan-400"></i>
+                            <span>Prompt Library</span>
+                        </button>
+                        <button onclick="switchTab('guardrails')" id="nav-guardrails" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                            <span>Safety & Guardrails</span>
+                        </button>
+                        <button onclick="switchTab('governance')" id="nav-governance" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 transition">
+                            <i data-lucide="shield-alert" class="w-4 h-4 text-red-400"></i>
+                            <div class="flex-1 text-left flex items-center justify-between">
+                                <span>Langfuse Analytics</span>
+                                <span class="text-[9px] bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded font-mono">LlamaGuard</span>
+                            </div>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer Governance Toggle -->
+            <div class="p-4 border-t border-slate-800/80 bg-slate-900/80">
+                <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-medium text-slate-300 flex items-center gap-1.5">
+                            <i data-lucide="lock" class="w-3.5 h-3.5 text-brand-400"></i>
+                            Strict Guardrails
+                        </span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="global-guard-toggle" class="sr-only peer" checked onchange="toggleGuardrailNotice(this.checked)">
+                            <div class="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+                    <p class="text-[10px] text-slate-400 leading-relaxed">
+                        Llama Guard active for realtime toxic filter & C2PA watermark injection.
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="flex-1 overflow-y-auto bg-slate-950 p-6 relative">
+            
+            <!-- GLOBAL NOTICE BANNER -->
+            <div id="guard-notice" class="mb-6 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs text-emerald-300">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                    <span><strong>Llama Guard 3 Integration Active:</strong> All prompt requests and generated media undergo multi-stage safety moderation and watermark tag injection.</span>
+                </div>
+                <span class="text-[10px] font-mono bg-emerald-950/80 px-2 py-0.5 rounded text-emerald-400 border border-emerald-500/30">Mode: Enforce</span>
+            </div>
+
+            <!-- ================= TAB 1: DASHBOARD OVERVIEW ================= -->
+            <div id="tab-dashboard" class="tab-content space-y-6">
+                <!-- Welcome Banner -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-r from-slate-900 via-brand-900/30 to-purple-900/20 border border-slate-800 relative overflow-hidden">
+                    <div class="relative z-10 space-y-1">
+                        <h2 class="text-2xl font-bold tracking-tight text-white">Multimodal Generative AI Workstation</h2>
+                        <p class="text-xs text-slate-300 max-w-xl">
+                            Deploy, route, and audit multimodal outputs through LiteLLM API Gateway with automated Llama Guard content checks and Langfuse observability.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3 relative z-10">
+                        <button onclick="switchTab('text')" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-brand-500/20 transition flex items-center gap-2">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i> Start Generating
+                        </button>
+                        <button onclick="switchTab('governance')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-2">
+                            <i data-lucide="activity" class="w-4 h-4"></i> View Telemetry
+                        </button>
+                    </div>
+                </div>
+
+                <!-- KPI Metric Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="p-4 rounded-xl glass-panel space-y-2">
+                        <div class="flex justify-between items-center text-slate-400">
+                            <span class="text-xs font-medium">Total API Generations</span>
+                            <i data-lucide="cpu" class="w-4 h-4 text-brand-400"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <span class="text-2xl font-bold font-mono text-white">18,492</span>
+                            <span class="text-xs font-semibold text-emerald-400 flex items-center">+12.4%</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400">Routed via LiteLLM Fallback Mesh</div>
+                    </div>
+
+                    <div class="p-4 rounded-xl glass-panel space-y-2">
+                        <div class="flex justify-between items-center text-slate-400">
+                            <span class="text-xs font-medium">Monthly Cost Realized</span>
+                            <i data-lucide="dollar-sign" class="w-4 h-4 text-emerald-400"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <span class="text-2xl font-bold font-mono text-white">$42.80</span>
+                            <span class="text-xs font-semibold text-slate-400">Budget $100</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400">Avg $0.0023 per multi-modal request</div>
+                    </div>
+
+                    <div class="p-4 rounded-xl glass-panel space-y-2">
+                        <div class="flex justify-between items-center text-slate-400">
+                            <span class="text-xs font-medium">Safety Violations Blocked</span>
+                            <i data-lucide="shield-alert" class="w-4 h-4 text-red-400"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <span class="text-2xl font-bold font-mono text-white">142</span>
+                            <span class="text-xs font-semibold text-red-400">0.76% Rate</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400">Intercepted by Llama Guard 3</div>
+                    </div>
+
+                    <div class="p-4 rounded-xl glass-panel space-y-2">
+                        <div class="flex justify-between items-center text-slate-400">
+                            <span class="text-xs font-medium">Average Latency (p95)</span>
+                            <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <span class="text-2xl font-bold font-mono text-white">420ms</span>
+                            <span class="text-xs font-semibold text-emerald-400">-18ms vs avg</span>
+                        </div>
+                        <div class="text-[10px] text-slate-400">Across 5 configured AI engines</div>
+                    </div>
+                </div>
+
+                <!-- Active Stack Modules -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 glass-panel p-5 rounded-2xl space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+                                <i data-lucide="layers" class="w-4 h-4 text-brand-400"></i>
+                                Integrated Multimodal Architecture
+                            </h3>
+                            <span class="text-[10px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded">All Stack Components Live</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-slate-200">LiteLLM Proxy Gateway</span>
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                </div>
+                                <p class="text-[11px] text-slate-400">Unified OpenAI format routing across GPT-4o, Claude 3.5, and Llama 3 models.</p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-slate-200">Diffusers & ComfyUI Engine</span>
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                </div>
+                                <p class="text-[11px] text-slate-400">Local & cloud text-to-image synthesis with FLUX.1 and SDXL pipelines.</p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-slate-200">Whisper & XTTS Voice Pipeline</span>
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                </div>
+                                <p class="text-[11px] text-slate-400">High-accuracy speech transcription and voice cloning text synthesis.</p>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 space-y-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-slate-200">Langfuse & Llama Guard</span>
+                                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                </div>
+                                <p class="text-[11px] text-slate-400">Realtime tracing, cost tracking, prompt versioning, and toxic input checks.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Prompt Actions Card -->
+                    <div class="glass-panel p-5 rounded-2xl space-y-4 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold text-white flex items-center gap-2 mb-3">
+                                <i data-lucide="zap" class="w-4 h-4 text-amber-400"></i>
+                                Quick Launch Workflow
+                            </h3>
+                            <div class="space-y-2">
+                                <button onclick="switchTab('text')" class="w-full text-left p-2.5 rounded-lg bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 flex items-center justify-between group transition">
+                                    <span>Summarize Enterprise Document</span>
+                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-500 group-hover:text-brand-400"></i>
+                                </button>
+                                <button onclick="switchTab('image')" class="w-full text-left p-2.5 rounded-lg bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 flex items-center justify-between group transition">
+                                    <span>Generate Product Mockup (FLUX)</span>
+                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-500 group-hover:text-purple-400"></i>
+                                </button>
+                                <button onclick="switchTab('audio')" class="w-full text-left p-2.5 rounded-lg bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 flex items-center justify-between group transition">
+                                    <span>Transcribe Meeting Recording</span>
+                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-slate-500 group-hover:text-amber-400"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+                            <span>Governance Policy: Standard Enterprise</span>
+                            <span class="text-emerald-400 font-mono">Compliant</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 2: TEXT STUDIO (LiteLLM) ================= -->
+            <div id="tab-text" class="tab-content hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i data-lucide="message-square" class="w-5 h-5 text-emerald-400"></i>
+                            Text Studio & Multi-LLM Gateway
+                        </h2>
+                        <p class="text-xs text-slate-400">Powered by LiteLLM Proxy with automatic model fallback, budget control, and Llama Guard checks.</p>
+                    </div>
+                    <div class="flex items-center gap-2 font-mono text-xs">
+                        <span class="px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-slate-300">Gateway: active</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Control Form Panel -->
+                    <div class="lg:col-span-5 glass-panel p-5 rounded-2xl space-y-4">
+                        <!-- Model Selection -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">LiteLLM Primary Router Model</label>
+                            <select id="text-model-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <option value="gpt-4o">OpenAI GPT-4o ($0.005 / 1k tokens)</option>
+                                <option value="claude-3-5-sonnet">Anthropic Claude 3.5 Sonnet ($0.003 / 1k tokens)</option>
+                                <option value="llama-3-70b" selected>Meta Llama 3 70B (vLLM / Local) ($0.0008 / 1k)</option>
+                                <option value="mistral-large">Mistral Large 2 ($0.002 / 1k tokens)</option>
+                            </select>
+                        </div>
+
+                        <!-- Fallback Route -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">LiteLLM Fallback Target</label>
+                            <select id="text-fallback-select" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <option value="llama-3-8b">Meta Llama 3 8B (vLLM Local)</option>
+                                <option value="mistral-7b" selected>Mistral 7B Instruct</option>
+                                <option value="claude-3-haiku">Anthropic Claude 3 Haiku</option>
+                            </select>
+                        </div>
+
+                        <!-- System Prompt -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">System Context</label>
+                            <textarea id="text-system-prompt" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="You are a helpful enterprise AI assistant equipped with technical precision...">You are a senior AI technical advisor providing concise, well-structured, and accurate technical guidance for software developers.</textarea>
+                        </div>
+
+                        <!-- User Prompt Input -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">User Prompt Input</label>
+                            <textarea id="text-user-prompt" rows="5" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Type your prompt here...">Write a brief architectural blueprint for deploying LiteLLM with a fallback model configuration between OpenAI and Llama 3.</textarea>
+                        </div>
+
+                        <!-- Safety Toggles -->
+                        <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-300 flex items-center gap-1.5 font-medium">
+                                    <i data-lucide="shield" class="w-3.5 h-3.5 text-brand-400"></i> Llama Guard 3 Gatekeeper
+                                </span>
+                                <input type="checkbox" id="text-llama-guard" class="rounded bg-slate-800 border-slate-700 text-brand-600 focus:ring-0" checked>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-400">Automatic LiteLLM Fallback</span>
+                                <span class="text-[10px] text-emerald-400 font-mono">Enabled</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Button -->
+                        <button onclick="generateText()" id="text-gen-btn" class="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i> Dispatch Generation Request
+                        </button>
+                    </div>
+
+                    <!-- Output Panel -->
+                    <div class="lg:col-span-7 glass-panel p-5 rounded-2xl flex flex-col justify-between space-y-4">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+                                <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                    <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i> Realtime Response Terminal
+                                </span>
+                                <div class="flex items-center gap-3 text-[11px] font-mono text-slate-400" id="text-metrics">
+                                    <span>Tokens: <strong class="text-slate-200" id="txt-metric-tokens">312</strong></span>
+                                    <span>Latency: <strong class="text-emerald-400" id="txt-metric-latency">380ms</strong></span>
+                                    <span>Cost: <strong class="text-slate-200" id="txt-metric-cost">$0.00025</strong></span>
+                                </div>
+                            </div>
+
+                            <!-- Llama Guard Status Bar -->
+                            <div id="text-guard-status" class="mb-3 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-300 flex items-center justify-between">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                    Safety Evaluation: PASSED (Llama Guard Category: Safe)
+                                </span>
+                                <span class="font-mono text-[10px]">Score: 0.001 Toxic</span>
+                            </div>
+
+                            <!-- Output Box -->
+                            <div id="text-output-content" class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 text-xs font-mono leading-relaxed text-slate-200 min-h-[260px] whitespace-pre-wrap overflow-y-auto">
+### LiteLLM Gateway Architecture Blueprint
+
+1. **Proxy Listener**: Deploy LiteLLM Proxy in Docker instance sitting behind NGINX load balancer.
+2. **Primary Model Config**: Point default route `gpt-4o` to primary OpenAI API.
+3. **Fallback Fallback Mesh**:
+   ```yaml
+   model_list:
+     - model_name: enterprise-chat
+       litellm_params:
+         model: gpt-4o
+         fallbacks: ["llama-3-70b"]
+   ```
+4. **Governance Integration**: Route all completion requests through `LlamaGuard3` moderation hook prior to stream return.
+5. **Langfuse Monitoring**: Log cost, latency, and prompt metadata automatically via `success_callback: ["langfuse"]`.
+                            </div>
+                        </div>
+
+                        <!-- Footer Bar -->
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
+                            <button onclick="copyToClipboard('text-output-content')" class="text-slate-400 hover:text-white flex items-center gap-1">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Output
+                            </button>
+                            <span class="text-[10px] text-slate-400 font-mono">Logged to Langfuse Trace #tr-89241</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 3: IMAGE STUDIO (Diffusers / ComfyUI) ================= -->
+            <div id="tab-image" class="tab-content hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i data-lucide="image" class="w-5 h-5 text-purple-400"></i>
+                            Image Studio (Diffusers & ComfyUI)
+                        </h2>
+                        <p class="text-xs text-slate-400">Generate visual assets with SDXL/FLUX pipelines, C2PA watermark tags, and NSFW safety checks.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Image Settings -->
+                    <div class="lg:col-span-5 glass-panel p-5 rounded-2xl space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Pipeline / Workflow Engine</label>
+                            <select class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option>FLUX.1-Dev (Diffusers Pipeline)</option>
+                                <option>Stable Diffusion XL Turbo (ComfyUI Workflow #12)</option>
+                                <option>Realistic Vision v6.0 (ComfyUI API)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Resolution Preset</label>
+                            <select id="img-resolution" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="1024x1024">1024 x 1024 (1:1 Square)</option>
+                                <option value="1152x896">1152 x 896 (Landscape)</option>
+                                <option value="896x1152">896 x 1152 (Portrait)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Positive Prompt</label>
+                            <textarea id="img-prompt" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Detailed image prompt...">A futuristic holographic server rack in a sleek dark cybersecurity lab, glowing blue and violet neon light, cinematic lighting, 8k resolution, photorealistic.</textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Negative Prompt</label>
+                            <input id="img-neg-prompt" type="text" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-500" value="blurry, distorted, low quality, oversaturated, text, signature">
+                        </div>
+
+                        <!-- Parameters Sliders -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                    <span>Guidance Scale</span>
+                                    <span id="cfg-val" class="font-mono">7.5</span>
+                                </div>
+                                <input type="range" min="1" max="20" step="0.5" value="7.5" oninput="document.getElementById('cfg-val').innerText=this.value" class="w-full accent-purple-500 bg-slate-800">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                    <span>Inference Steps</span>
+                                    <span id="steps-val" class="font-mono">28</span>
+                                </div>
+                                <input type="range" min="10" max="50" step="1" value="28" oninput="document.getElementById('steps-val').innerText=this.value" class="w-full accent-purple-500 bg-slate-800">
+                            </div>
+                        </div>
+
+                        <!-- Governance Addons -->
+                        <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 space-y-2">
+                            <label class="flex items-center justify-between text-xs text-slate-300 cursor-pointer">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="tag" class="w-3.5 h-3.5 text-purple-400"></i> Visible AI-Generated Watermark Badge
+                                </span>
+                                <input type="checkbox" id="img-watermark-check" class="rounded bg-slate-800 border-slate-700 text-purple-600 focus:ring-0" checked>
+                            </label>
+                            <label class="flex items-center justify-between text-xs text-slate-300 cursor-pointer">
+                                <span class="flex items-center gap-1.5">
+                                    <i data-lucide="eye" class="w-3.5 h-3.5 text-red-400"></i> Llama Guard Vision / NSFW Safety Filter
+                                </span>
+                                <input type="checkbox" id="img-nsfw-check" class="rounded bg-slate-800 border-slate-700 text-purple-600 focus:ring-0" checked>
+                            </label>
+                        </div>
+
+                        <button onclick="generateImage()" id="img-gen-btn" class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2">
+                            <i data-lucide="wand2" class="w-4 h-4"></i> Synthesize Image Pipeline
+                        </button>
+                    </div>
+
+                    <!-- Image Display Canvas -->
+                    <div class="lg:col-span-7 glass-panel p-5 rounded-2xl flex flex-col justify-between space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <span class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                <i data-lucide="image" class="w-4 h-4 text-purple-400"></i> Generated Canvas Preview
+                            </span>
+                            <div class="text-[11px] font-mono text-slate-400">
+                                Resolution: <span id="img-res-display" class="text-slate-200">1024x1024</span> | Latency: <span id="img-latency" class="text-purple-400">1.82s</span>
+                            </div>
+                        </div>
+
+                        <!-- Canvas Box -->
+                        <div class="relative rounded-xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center min-h-[340px] group">
+                            <img id="image-result" 
+                                 src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1000&q=80" 
+                                 alt="Generated AI Art" 
+                                 class="w-full h-full object-cover max-h-[400px] transition-all duration-300"
+                                 onerror="this.src='https://placehold.co/800x600/1e293b/ffffff?text=AI+Generated+Visual'">
+                            
+                            <!-- Visible AI Watermark Overlay -->
+                            <div id="ai-watermark-badge" class="absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-slate-900/90 backdrop-blur border border-slate-700 text-[10px] font-mono text-purple-300 flex items-center gap-1.5 shadow-lg">
+                                <i data-lucide="shield" class="w-3 h-3 text-purple-400"></i>
+                                AI-GENERATED (C2PA SIGNED)
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-800">
+                            <span class="text-slate-400 font-mono text-[11px]">Seed: #84920194 | Model: FLUX.1-Dev</span>
+                            <a id="download-img-btn" href="#" onclick="alert('Downloading high-resolution image with metadata...')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-medium flex items-center gap-1.5 transition">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i> Download Asset
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 4: AUDIO STUDIO (Whisper & XTTS) ================= -->
+            <div id="tab-audio" class="tab-content hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i data-lucide="mic" class="w-5 h-5 text-amber-400"></i>
+                            Audio Studio (Whisper & XTTS v2)
+                        </h2>
+                        <p class="text-xs text-slate-400">Dual audio pipeline: Speech-to-Text transcription and multi-lingual voice synthesis.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Speech to Text (Whisper) -->
+                    <div class="glass-panel p-5 rounded-2xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                <i data-lucide="file-audio" class="w-4 h-4 text-amber-400"></i> Whisper Speech-to-Text
+                            </h3>
+                            <span class="text-[10px] font-mono bg-amber-500/10 text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded">Model: Whisper-large-v3</span>
+                        </div>
+
+                        <!-- File Upload Box -->
+                        <div class="border-2 border-dashed border-slate-800 hover:border-amber-500/50 rounded-xl p-6 text-center cursor-pointer bg-slate-900/40 transition">
+                            <input type="file" id="audio-file-input" class="hidden" onchange="handleAudioUpload(this)">
+                            <label for="audio-file-input" class="cursor-pointer">
+                                <i data-lucide="upload-cloud" class="w-8 h-8 text-amber-400 mx-auto mb-2"></i>
+                                <p class="text-xs font-medium text-slate-200" id="audio-file-label">Drop audio file here or click to browse</p>
+                                <p class="text-[10px] text-slate-400 mt-1">Supports MP3, WAV, FLAC up to 50MB</p>
+                            </label>
+                        </div>
+
+                        <button onclick="transcribeAudio()" class="w-full py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
+                            <i data-lucide="play" class="w-3.5 h-3.5"></i> Run Whisper Transcription
+                        </button>
+
+                        <!-- Transcription Result Output -->
+                        <div class="space-y-1">
+                            <label class="text-[11px] font-semibold text-slate-400">Timestamped Transcript</label>
+                            <div id="whisper-output" class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs font-mono text-slate-300 h-36 overflow-y-auto space-y-1">
+                                <p><span class="text-amber-400">[00:00.00]</span> Welcome to the enterprise multimodal studio platform demo.</p>
+                                <p><span class="text-amber-400">[00:03.20]</span> All audio files uploaded are processed with high accuracy and low latency.</p>
+                                <p><span class="text-amber-400">[00:07.45]</span> Speech transcription is complete with 99.1% clarity index.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Text to Speech (XTTS) -->
+                    <div class="glass-panel p-5 rounded-2xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                                <i data-lucide="volume-2" class="w-4 h-4 text-emerald-400"></i> XTTS Text-to-Speech Synthesis
+                            </h3>
+                            <span class="text-[10px] font-mono bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 px-2 py-0.5 rounded">XTTS v2 Voice Clone</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Speaker Reference Profile</label>
+                            <select class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200">
+                                <option>Narrator - Clarice (English US Female)</option>
+                                <option>Executive - Marcus (English UK Male)</option>
+                                <option>Custom Reference Clone Sample #12</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Script Text</label>
+                            <textarea rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200" placeholder="Text to generate into speech...">This voice audio was synthesized using XTTS v2 neural speech generation with latency-optimized streaming.</textarea>
+                        </div>
+
+                        <button onclick="synthesizeSpeech()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Synthesize Speech Audio
+                        </button>
+
+                        <!-- Simulated Audio Player -->
+                        <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center gap-3">
+                            <button onclick="toggleAudioPlay()" id="audio-play-btn" class="w-8 h-8 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center hover:bg-emerald-400 transition">
+                                <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+                            </button>
+                            <div class="flex-1 space-y-1">
+                                <div class="flex justify-between text-[10px] font-mono text-slate-400">
+                                    <span id="audio-time">00:02 / 00:08</span>
+                                    <span>24kHz WAV</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                    <div id="audio-progress" class="bg-emerald-400 h-full w-[25%] transition-all"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 5: VIDEO STUDIO ================= -->
+            <div id="tab-video" class="tab-content hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i data-lucide="video" class="w-5 h-5 text-rose-400"></i>
+                            Video Studio (Generative Motion)
+                        </h2>
+                        <p class="text-xs text-slate-400">Animate static images or synthesize text-to-video clips with temporal safety filtering.</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-8 rounded-2xl text-center max-w-2xl mx-auto space-y-4">
+                    <div class="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+                        <i data-lucide="film" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Animate Diff & Stable Video Diffusion Ready</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        The video rendering pipeline is initialized. Connect your GPU cluster or ComfyUI Video Workflow endpoint to stream frame-by-frame generated video directly to this canvas.
+                    </p>
+                    <button onclick="alert('Video render worker queue initialized.')" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-rose-500/20 transition">
+                        Initialize Video Queue
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= TAB 6: PROMPT LIBRARY & VERSIONING ================= -->
+            <div id="tab-prompts" class="tab-content hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i data-lucide="book-open" class="w-5 h-5 text-cyan-400"></i>
+                            Prompt Library & Versioning
+                        </h2>
+                        <p class="text-xs text-slate-400">Centralized reusable prompt catalog with variable injection and version control tags.</p>
+                    </div>
+                    <button onclick="alert('Prompt creation wizard initialized.')" class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> New Prompt Template
+                    </button>
+                </div>
+
+                <!-- Tag Management Filter Bar -->
+                <div class="flex items-center gap-2 flex-wrap text-xs">
+                    <span class="text-slate-400 font-medium">Tags:</span>
+                    <button class="px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">All</button>
+                    <button class="px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 hover:bg-slate-700">#CodeReview</button>
+                    <button class="px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 hover:bg-slate-700">#Diffusers</button>
+                    <button class="px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 hover:bg-slate-700">#Legal</button>
+                    <button class="px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 hover:bg-slate-700">#Production</button>
+                </div>
+
+                <!-- Prompt Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Prompt Card 1 -->
+                    <div class="glass-panel p-4 rounded-xl space-y-3 flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-200">System Code Reviewer</span>
+                                <span class="text-[10px] font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 px-2 py-0.5 rounded">v2.1</span>
+                            </div>
+                            <div class="flex gap-1 text-[9px] font-mono">
+                                <span class="bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">#CodeReview</span>
+                                <span class="bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">#Production</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 line-clamp-2">Evaluates Python and TypeScript snippets for security vulnerabilities and compliance.</p>
+                            <div class="p-2 bg-slate-900 rounded-lg border border-slate-800 text-[10px] font-mono text-slate-300">
+                                "Analyze the following {{code_snippet}} for security..."
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+                            <span class="text-[10px] text-slate-400">Updated 2 days ago</span>
+                            <button onclick="usePrompt('Analyze the code for memory leaks and security bugs.')" class="text-xs text-cyan-400 hover:underline flex items-center gap-1">
+                                Use in Studio <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Prompt Card 2 -->
+                    <div class="glass-panel p-4 rounded-xl space-y-3 flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-200">Enterprise Asset Render</span>
+                                <span class="text-[10px] font-mono bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 py-0.5 rounded">v1.4</span>
+                            </div>
+                            <div class="flex gap-1 text-[9px] font-mono">
+                                <span class="bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">#Diffusers</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 line-clamp-2">FLUX image template optimized for high-end technology isometric product renders.</p>
+                            <div class="p-2 bg-slate-900 rounded-lg border border-slate-800 text-[10px] font-mono text-slate-300">
+                                "Isometric view of {{subject}}, volumetric studio lighting..."
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+                            <span class="text-[10px] text-slate-400">Updated 1 week ago</span>
+                            <button onclick="switchTab('image')" class="text-xs text-purple-400 hover:underline flex items-center gap-1">
+                                Use in Studio <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Prompt Card 3 -->
+                    <div class="glass-panel p-4 rounded-xl space-y-3 flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-200">Legal Summary Extractor</span>
+                                <span class="text-[10px] font-mono bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 px-2 py-0.5 rounded">v3.0</span>
+                            </div>
+                            <div class="flex gap-1 text-[9px] font-mono">
+                                <span class="bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">#Legal</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 line-clamp-2">Strict extraction of contract liabilities with Llama Guard compliance pre-checks.</p>
+                            <div class="p-2 bg-slate-900 rounded-lg border border-slate-800 text-[10px] font-mono text-slate-300">
+                                "Extract clause terms and liabilities from document..."
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+                            <span class="text-[10px] text-slate-400">Updated 3 hours ago</span>
+                            <button onclick="usePrompt('Extract liabilities and key dates from the contract text.')" class="text-xs text-emerald-400 hover:underline flex items-center gap-1">
+                                Use in Studio <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 7: SAFETY & GUARDRAILS ================= -->
+            <div id="tab-guardrails" class="tab-content hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
+                            Safety & Guardrail Controls
+                        </h2>
+                        <p class="text-xs text-slate-400">Configure Llama Guard moderation sensitivity thresholds, category filtering, and watermarking.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-panel p-5 rounded-2xl space-y-4">
+                        <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2 border-b border-slate-800 pb-2">
+                            <i data-lucide="sliders" class="w-4 h-4 text-brand-400"></i> Llama Guard Risk Thresholds
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                    <span>Toxicity Sensitivity Limit</span>
+                                    <span id="thresh-tox-val" class="font-mono text-brand-400">0.05</span>
+                                </div>
+                                <input type="range" min="0.01" max="0.5" step="0.01" value="0.05" oninput="document.getElementById('thresh-tox-val').innerText=this.value" class="w-full accent-brand-500 bg-slate-800">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs text-slate-300 mb-1">
+                                    <span>PII / Sensitive Data Redaction Score</span>
+                                    <span id="thresh-pii-val" class="font-mono text-brand-400">0.02</span>
+                                </div>
+                                <input type="range" min="0.01" max="0.5" step="0.01" value="0.02" oninput="document.getElementById('thresh-pii-val').innerText=this.value" class="w-full accent-brand-500 bg-slate-800">
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-slate-900 rounded-xl border border-slate-800 space-y-2 text-xs">
+                            <label class="flex items-center justify-between text-slate-300 cursor-pointer">
+                                <span>Block Unsafe Code Execution</span>
+                                <input type="checkbox" checked class="rounded bg-slate-800 border-slate-700 text-brand-600">
+                            </label>
+                            <label class="flex items-center justify-between text-slate-300 cursor-pointer">
+                                <span>Auto-Inject C2PA Invisible Metadata</span>
+                                <input type="checkbox" checked class="rounded bg-slate-800 border-slate-700 text-brand-600">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-2xl space-y-4">
+                        <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2 border-b border-slate-800 pb-2">
+                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i> Category Moderation Status
+                        </h3>
+                        <div class="space-y-2 text-xs">
+                            <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between">
+                                <span class="text-slate-300">S1: Violent Crimes & Threats</span>
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono text-[10px]">STRICT BLOCK</span>
+                            </div>
+                            <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between">
+                                <span class="text-slate-300">S2: Non-Consensual Explicit Material</span>
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono text-[10px]">STRICT BLOCK</span>
+                            </div>
+                            <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-between">
+                                <span class="text-slate-300">S3: PII & Financial Disclosure</span>
+                                <span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono text-[10px]">REDACT & LOG</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 8: GOVERNANCE & OBSERVABILITY (Langfuse) ================= -->
+            <div id="tab-governance" class="tab-content hidden space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i data-lucide="shield-alert" class="w-5 h-5 text-red-400"></i>
+                            Governance, Safety & Langfuse Analytics
+                        </h2>
+                        <p class="text-xs text-slate-400">Audit execution traces, cost metrics, and Llama Guard safety violation logs.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-400 font-mono">Langfuse Sync: Live</span>
+                    </div>
+                </div>
+
+                <!-- Trace Log Table -->
+                <div class="glass-panel p-5 rounded-2xl space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+                            <i data-lucide="list" class="w-4 h-4 text-brand-400"></i> Live Execution Traces & Guardrail Logs
+                        </h3>
+                        <span class="text-[11px] text-slate-400">Showing last 4 transactions</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-900/80 text-[10px] uppercase font-mono text-slate-400 border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Trace ID</th>
+                                    <th class="p-3">Studio Pipeline</th>
+                                    <th class="p-3">Model Engine</th>
+                                    <th class="p-3">Safety Status</th>
+                                    <th class="p-3">Latency</th>
+                                    <th class="p-3">Cost</th>
+                                    <th class="p-3">Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60 font-mono text-[11px]">
+                                <tr class="hover:bg-slate-900/40">
+                                    <td class="p-3 text-brand-400">tr-9021a</td>
+                                    <td class="p-3 text-slate-200 font-sans">Text Studio</td>
+                                    <td class="p-3 text-slate-400">Meta Llama 3 70B</td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">PASSED</span></td>
+                                    <td class="p-3 text-slate-300">380ms</td>
+                                    <td class="p-3 text-slate-300">$0.00025</td>
+                                    <td class="p-3 text-slate-500">Just now</td>
+                                </tr>
+                                <tr class="hover:bg-slate-900/40">
+                                    <td class="p-3 text-brand-400">tr-8994b</td>
+                                    <td class="p-3 text-slate-200 font-sans">Image Studio</td>
+                                    <td class="p-3 text-slate-400">FLUX.1-Dev</td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">PASSED</span></td>
+                                    <td class="p-3 text-slate-300">1.82s</td>
+                                    <td class="p-3 text-slate-300">$0.00400</td>
+                                    <td class="p-3 text-slate-500">2 mins ago</td>
+                                </tr>
+                                <tr class="hover:bg-slate-900/40 bg-red-950/10">
+                                    <td class="p-3 text-red-400">tr-8820c</td>
+                                    <td class="p-3 text-slate-200 font-sans">Text Studio</td>
+                                    <td class="p-3 text-slate-400">OpenAI GPT-4o</td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20 text-[10px]">BLOCKED (Llama Guard)</span></td>
+                                    <td class="p-3 text-slate-300">120ms</td>
+                                    <td class="p-3 text-slate-300">$0.00000</td>
+                                    <td class="p-3 text-slate-500">14 mins ago</td>
+                                </tr>
+                                <tr class="hover:bg-slate-900/40">
+                                    <td class="p-3 text-brand-400">tr-8711d</td>
+                                    <td class="p-3 text-slate-200 font-sans">Audio Studio</td>
+                                    <td class="p-3 text-slate-400">Whisper-large-v3</td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">PASSED</span></td>
+                                    <td class="p-3 text-slate-300">920ms</td>
+                                    <td class="p-3 text-slate-300">$0.00120</td>
+                                    <td class="p-3 text-slate-500">1 hour ago</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ACCEPTABLE USE POLICY MODAL -->
+    <div id="aup-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-100 text-sm flex items-center gap-2">
+                    <i data-lucide="file-check" class="w-4 h-4 text-brand-400"></i> Acceptable Use Policy & Governance
+                </h3>
+                <button onclick="closeAUPModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div class="text-xs text-slate-300 space-y-2 max-h-60 overflow-y-auto leading-relaxed font-mono">
+                <p><strong>1. Acceptable Content Generation:</strong> All outputs generated using text, image, speech, and video studios must adhere to safety guidelines governed by Llama Guard 3.</p>
+                <p><strong>2. Watermarking and AI Identification:</strong> All visual and media outputs automatically embed visible and invisible metadata badges certifying synthetic provenance.</p>
+                <p><strong>3. Rate and Usage Governance:</strong> Token usage and latency are tracked through Langfuse to ensure fair resource allocation across organization members.</p>
+            </div>
+            <div class="pt-3 border-t border-slate-800 flex justify-end">
+                <button onclick="closeAUPModal()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-semibold">I Understand</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive JavaScript state handling -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Modal triggers
+        function openAUPModal() { document.getElementById('aup-modal').classList.remove('hidden'); }
+        function closeAUPModal() { document.getElementById('aup-modal').classList.add('hidden'); }
+
+        function handleAudioUpload(input) {
+            if (input.files && input.files[0]) {
+                document.getElementById('audio-file-label').innerText = "Selected: " + input.files[0].name;
+            }
+        }
+
+        // Navigation Tab Switcher
+        function switchTab(tabId) {
+            // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // Deactivate all sidebar nav styling
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('bg-brand-600/20', 'border', 'border-brand-500/30', 'text-white');
+                el.classList.add('text-slate-400');
+            });
+
+            // Show selected tab content
+            const targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+            }
+
+            // Highlight selected nav item
+            const targetNav = document.getElementById('nav-' + tabId);
+            if (targetNav) {
+                targetNav.classList.add('bg-brand-600/20', 'border', 'border-brand-500/30', 'text-white');
+                targetNav.classList.remove('text-slate-400');
+            }
+        }
+
+        // Toggle Llama Guard Notice
+        function toggleGuardrailNotice(enabled) {
+            const notice = document.getElementById('guard-notice');
+            if (enabled) {
+                notice.classList.remove('hidden');
+            } else {
+                notice.classList.add('hidden');
+            }
+        }
+
+        // Text Generation Simulation
+        function generateText() {
+            const btn = document.getElementById('text-gen-btn');
+            const output = document.getElementById('text-output-content');
+            const model = document.getElementById('text-model-select').value;
+            const fallback = document.getElementById('text-fallback-select').value;
+
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Dispatching via LiteLLM...`;
+            lucide.createIcons();
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i> Dispatch Generation Request`;
+                
+                output.innerText = `[LiteLLM Proxy Routing Target: ${model} | Fallback Target: ${fallback}]\n\nArchitectural Execution Summary:\n1. Prompt received and scanned via Llama Guard 3.\n2. Fallback pool initialized: Primary endpoint healthy.\n3. Streaming output finalized with latency 340ms.\n\nResult:\n"The requested AI workflow has been authorized and executed with full telemetry logging."`;
+                
+                document.getElementById('txt-metric-latency').innerText = '340ms';
+                document.getElementById('txt-metric-tokens').innerText = '184';
+                lucide.createIcons();
+            }, 800);
+        }
+
+        // Image Generation Simulation
+        function generateImage() {
+            const btn = document.getElementById('img-gen-btn');
+            const img = document.getElementById('image-result');
+            const watermarkChecked = document.getElementById('img-watermark-check').checked;
+            const watermarkBadge = document.getElementById('ai-watermark-badge');
+            const res = document.getElementById('img-resolution').value;
+
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Synthesizing Image...`;
+            lucide.createIcons();
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="wand2" class="w-4 h-4"></i> Synthesize Image Pipeline`;
+                
+                img.src = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1000&q=80";
+                
+                if (watermarkChecked) {
+                    watermarkBadge.classList.remove('hidden');
+                } else {
+                    watermarkBadge.classList.add('hidden');
+                }
+                
+                document.getElementById('img-res-display').innerText = res;
+                document.getElementById('img-latency').innerText = '1.45s';
+                lucide.createIcons();
+            }, 1200);
+        }
+
+        // Audio Transcribe Simulation
+        function transcribeAudio() {
+            const out = document.getElementById('whisper-output');
+            out.innerHTML = `<p class="text-amber-400 font-mono text-[11px]">Transcribing audio stream via Whisper-large-v3...</p>`;
+            
+            setTimeout(() => {
+                out.innerHTML = `
+                    <p><span class="text-amber-400">[00:00.00]</span> Audio file loaded successfully into Whisper memory buffer.</p>
+                    <p><span class="text-amber-400">[00:02.10]</span> "The governance layer actively monitors all speech inputs."</p>
+                    <p><span class="text-amber-400">[00:05.80]</span> Transcription processing completed with zero safety flags.</p>
+                `;
+            }, 900);
+        }
+
+        // Audio Synthesize Simulation
+        function synthesizeSpeech() {
+            const prog = document.getElementById('audio-progress');
+            prog.style.width = '0%';
+            setTimeout(() => prog.style.width = '100%', 300);
+        }
+
+        // Audio Player Simulation Toggle
+        let isPlaying = false;
+        function toggleAudioPlay() {
+            const btn = document.getElementById('audio-play-btn');
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                btn.innerHTML = `<i data-lucide="pause" class="w-4 h-4 fill-current"></i>`;
+            } else {
+                btn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-current"></i>`;
+            }
+            lucide.createIcons();
+        }
+
+        // Quick Prompt Injection
+        function usePrompt(text) {
+            switchTab('text');
+            document.getElementById('text-user-prompt').value = text;
+        }
+
+        // Copy Helper
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied output to clipboard!');
+            }).catch(() => {
+                document.execCommand('copy');
+                alert('Copied output to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>
